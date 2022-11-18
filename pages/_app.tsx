@@ -11,7 +11,7 @@ const fevmChain: Chain = {
   id: 31415,
   name: "wallaby",
   network: "wallaby",
-  // nativeCurrency: "tFIL",
+  nativeCurrency: { name: "Test Filcoin", symbol: "tFIL", decimals: 1e18 },
   rpcUrls: {
     default: "https://wallaby.node.glif.io/rpc/v0",
   },
