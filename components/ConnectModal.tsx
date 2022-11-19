@@ -41,6 +41,7 @@ const ConnectModal: FC<ConnectModalProps> = ({ open, onClose, modalTitle }) => {
               onClick={() => connect({ connector })}
             >
               <Image
+                // @ts-ignore
                 src={Icons[connector.id]}
                 alt={connector.name}
                 width={24}

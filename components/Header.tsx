@@ -1,10 +1,14 @@
-import React, { useState, useEffect, FC } from "react"
 import { useRouter } from "next/router"
-import Image from "next/image"
-import Link from "next/link"
-import ConnectModal from "./ConnectModal"
-import { useAccount, useDisconnect } from "wagmi"
+import { FC, useState } from "react"
+import {
+  Chain,
+  useAccount,
+  useDisconnect,
+  useNetwork,
+  useSwitchNetwork,
+} from "wagmi"
 import useIsMounted from "../hooks/useIsMounted"
+import ConnectModal from "./ConnectModal"
 
 type HeaderProps = {
   type?: string
@@ -18,6 +22,19 @@ const Header: FC<HeaderProps> = ({}) => {
 
   const router = useRouter()
   const [openConnectModal, setOpenConnectModal] = useState<boolean>(false)
+
+  const { chain } = useNetwork()
+  const { chains, error, isLoading, switchNetwork } = useSwitchNetwork()
+
+  if (
+    chain &&
+    switchNetwork &&
+    !chains.some((c: Chain) => c.id === chain.id) &&
+    !isLoading &&
+    !error
+  ) {
+    switchNetwork(chains[0].id)
+  }
 
   return (
     <div className="min-h-full bg-transparent shadow-sm">

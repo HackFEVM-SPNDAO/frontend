@@ -3,9 +3,8 @@ import PageLayout from "../components/layouts/PageLayout"
 import useIsMounted from "../hooks/useIsMounted"
 
 export default function Home() {
-  const { data: balance } = useBalance({
-    address: "0x4bFC74983D6338D3395A00118546614bB78472c2",
-  })
+  const { address } = useAccount()
+  const { data: balance } = useBalance({ address })
 
   const isMounted = useIsMounted()
 
@@ -18,7 +17,8 @@ export default function Home() {
           </h1>
 
           <div className="text-bold">
-            Your current balance {isMounted && balance?.formatted} {isMounted && balance?.symbol}
+            Your current balance {isMounted && balance?.formatted}{" "}
+            {isMounted && balance?.symbol}
           </div>
         </div>
       </div>
