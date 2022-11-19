@@ -38,7 +38,7 @@ const Header: FC<HeaderProps> = ({}) => {
 
   return (
     <div className="min-h-full bg-transparent shadow-sm">
-      <div className="container mx-auto px-6 flex items-center h-20 text-gray-600">
+      <div className="container bg-transparent mx-auto px-6 flex items-center h-20 text-gray-600">
         <div className="flex items-center justify-between w-full">
           <button
             className="text-extrabold text-4xl text-violet-600 w-32 flex items-center justify-center"
