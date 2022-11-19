@@ -1,8 +1,9 @@
-import { Contract, ethers } from "ethers"
+import { ethers } from "ethers"
 import { useRouter } from "next/router"
 import { ChangeEvent, useRef, useState } from "react"
-import { AiFillDatabase } from "react-icons/ai"
+import { AiFillDatabase, AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { BiUpload } from "react-icons/bi"
+import { IoIosCheckmark } from "react-icons/io"
 import { useAccount, useSigner } from "wagmi"
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
@@ -30,16 +31,16 @@ export default function Join() {
 
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
 
+  function clickFileInput() {
+    fileRef?.current?.click()
+  }
+
   async function onChangeInputFile(file: File) {
     if (!file) return
 
     console.log("File: ", file)
 
     uploadToServer(file)
-  }
-
-  function clickFileInput() {
-    fileRef?.current?.click()
   }
 
   const uploadToServer = async (file: File) => {
@@ -56,6 +57,12 @@ export default function Join() {
       console.error(`An error occured during uploading the file: ${e.message}`)
       setJoinState(JoinState.UploadFailure)
     }
+  }
+
+  async function onEncryptUrl() {
+    console.log("NOT IMPLEMENTED ON_MINT_TOKEN")
+
+    setJoinState(JoinState.MintToken)
   }
 
   async function onMintToken() {
@@ -79,13 +86,29 @@ export default function Join() {
     console.log(`correct message ${address}`)
 
     const recoveredAddress = ethers.utils.verifyMessage(address, signature)
-    console.log("recovered address", recoveredAddress)
+    console.log(
+      "recovered address",
+      recoveredAddress,
+      ", is valid: ",
+      recoveredAddress === (await signer.getAddress())
+    )
 
     const recoveredInvalidAddress = ethers.utils.verifyMessage(
       `0x${address}`,
       signature
     )
-    console.log("recovered invalid address", recoveredInvalidAddress)
+    console.log(
+      "recovered invalid address",
+      recoveredInvalidAddress,
+      ", is valid: ",
+      recoveredInvalidAddress === (await signer.getAddress())
+    )
+
+    setJoinState(JoinState.MintSuccess)
+  }
+
+  function onViewDashboard() {
+    router.push("/dashboard")
   }
 
   function showTitle() {
@@ -98,9 +121,10 @@ export default function Join() {
         title = "Uploading your files..."
         break
       case JoinState.UploadSuccess:
-        title = "URL encrypted. You can mint your token now"
+        title = "Upload successful!"
         break
       case JoinState.UploadFailure:
+      case JoinState.MintFailure:
         title = (
           <>
             <p>We&apos;re really sorry.</p>
@@ -108,7 +132,12 @@ export default function Join() {
           </>
         )
         break
-
+      case JoinState.MintToken:
+        title = "URL encrypted. You can mint your token now"
+        break
+      case JoinState.MintSuccess:
+        title = "Token mint successful"
+        break
       default:
         break
     }
@@ -173,16 +202,65 @@ export default function Join() {
 
             <button
               className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
-              onClick={() => onMintToken()}
+              onClick={() => onEncryptUrl()}
             >
-              Mint token
+              Encrypt URL
             </button>
           </div>
         )
 
         break
       case JoinState.UploadFailure:
+      case JoinState.MintFailure:
         break
+      case JoinState.MintToken:
+        content = (
+          <div className="flex flex-col items-center mx-auto mt-24 py-24 px-8">
+            <div className="text-gray-500 bg-black rounded-full py-4 px-4 text-bold text-5xl ">
+              <AiFillDatabase />
+            </div>
+
+            <button
+              className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
+              onClick={() => onMintToken()}
+            >
+              Mint token
+            </button>
+          </div>
+        )
+        break
+      case JoinState.MintSuccess:
+        content = (
+          <div className="flex flex-col items-center mx-auto mt-18 py-24 px-8">
+            <span className="text-md mr-10 text-red-500">
+              <AiFillStar />
+            </span>
+
+            <div className="flex">
+              <span className="text-lg mt-20 text-red-500">
+                <AiFillStar />
+              </span>
+              <div className="text-white border-4 border-blue-600 bg-gradient-to-br from-violet-700 via-red-500 to-red-200 rounded-full py-1 px-1 text-bold text-8xl">
+                <IoIosCheckmark />
+              </div>
+              <span className="text-lg mt-2 text-red-500">
+                <AiFillStar />
+              </span>
+              <span className="text-sm mt-10 text-red-500">
+                <AiFillStar />
+              </span>
+            </div>
+
+            <button
+              className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
+              onClick={() => onViewDashboard()}
+            >
+              View in dashboard
+            </button>
+          </div>
+        )
+        break
+
       default:
         break
     }
