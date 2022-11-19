@@ -66,10 +66,9 @@ const Header: FC<HeaderProps> = ({}) => {
           </div>
         </div>
       </div>
+
       <ConnectModal
-        onClose={() => {
-          setOpenConnectModal(false)
-        }}
+        onClose={() => setOpenConnectModal(false)}
         open={openConnectModal}
         modalTitle="Connect Wallet"
       />

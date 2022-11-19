@@ -1,5 +1,7 @@
 import { useRouter } from "next/router"
 import { useState } from "react"
+import { useAccount } from "wagmi"
+import ConnectModal from "../components/ConnectModal"
 import PageLayout from "../components/layouts/PageLayout"
 
 enum UserChoice {
@@ -9,8 +11,10 @@ enum UserChoice {
 
 export default function Home() {
   const router = useRouter()
+  const { isConnected } = useAccount()
 
   const [activeChoice, setActiveChoice] = useState(UserChoice.EndUser)
+  const [openConnectModal, setOpenConnectModal] = useState<boolean>(false)
 
   return (
     <div className="w-full min-h-screen bg-cover bg-[url('/assets/landing_bg.png')]">
@@ -20,7 +24,9 @@ export default function Home() {
         </h1>
 
         <div className="text-bold text-2xl text-gray-500 mt-8">
-          Control your own data & profit from it
+          {activeChoice === UserChoice.EndUser
+            ? "Control your own data & profit from it"
+            : "Use data more efficiently with compliance"}
         </div>
 
         <div
@@ -49,13 +55,33 @@ export default function Home() {
 
         <button
           className="block mx-auto bg-violet-600 text-white text-bold text-xl rounded-xl mt-48 px-16 py-2"
-          onClick={() => router.push("/join")}
+          onClick={async () => {
+            if (activeChoice === UserChoice.EndUser) {
+              router.push("/join")
+              return
+            }
+
+            if (!isConnected) {
+              setOpenConnectModal(true)
+            } else {
+              router.push("/admin")
+            }
+          }}
         >
           {activeChoice === UserChoice.EndUser
             ? "Join ZP DAO"
             : "Login with the wallet"}
         </button>
       </div>
+
+      <ConnectModal
+        onClose={() => {
+          setOpenConnectModal(false)
+          if (isConnected) router.push("/admin")
+        }}
+        open={openConnectModal}
+        modalTitle="Connect Wallet"
+      />
     </div>
   )
 }
