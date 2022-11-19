@@ -269,8 +269,8 @@ export default function Join() {
   }
 
   return (
-    <PageLayout>
-      <div className="w-full min-h-screen bg-cover">
+    <PageLayout containerClassName="bg-gray-50">
+      <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
           {!isMounted ? null : !isConnected ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
