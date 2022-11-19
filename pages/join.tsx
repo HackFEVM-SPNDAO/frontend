@@ -151,7 +151,7 @@ export default function Join() {
     switch (joinState) {
       case JoinState.Start:
         content = (
-          <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
+          <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
             <button
               className="mx-auto flex flex-col items-center rounded-xl"
               onClick={() => clickFileInput()}
@@ -183,7 +183,7 @@ export default function Join() {
         break
       case JoinState.UploadingCsv:
         content = (
-          <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
+          <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
             <div className="mx-auto flex flex-col items-center rounded-xl">
               <Spinner />
 
@@ -195,11 +195,17 @@ export default function Join() {
         break
       case JoinState.UploadSuccess:
         content = (
-          <div className="flex flex-col items-center mx-auto mt-24 py-24 px-8">
-            <div className="text-gray-500 bg-black rounded-full py-4 px-4 text-bold text-5xl ">
-              <AiFillDatabase />
-            </div>
+          <div className="mx-auto w-1/2">
+            <div className="mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
+              <div className="mx-auto flex flex-col items-center rounded-xl">
+                <div className="rounded-full py-4 px-4 text-bold text-5xl border-2 border-violet-600 text-violet-600">
+                  <IoIosCheckmark />
+                </div>
 
+                <p className="mt-4">Your IPFS link has been generated!.</p>
+                <p># CID #</p>
+              </div>
+            </div>
             <button
               className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
               onClick={() => onEncryptUrl()}
