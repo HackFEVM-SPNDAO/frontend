@@ -15,12 +15,12 @@ type HeaderProps = {
 }
 
 const Header: FC<HeaderProps> = ({}) => {
+  const router = useRouter()
   const isMounted = useIsMounted()
 
   const { address } = useAccount()
   const { disconnect } = useDisconnect()
 
-  const router = useRouter()
   const [openConnectModal, setOpenConnectModal] = useState<boolean>(false)
 
   const { chain } = useNetwork()
@@ -41,10 +41,10 @@ const Header: FC<HeaderProps> = ({}) => {
       <div className="container mx-auto px-6 flex items-center h-20 text-gray-600">
         <div className="flex items-center justify-between w-full">
           <button
-            className="text-extrabold text-3xl text-violet-600 w-32 flex items-center justify-center"
+            className="text-extrabold text-4xl text-violet-600 w-32 flex items-center justify-center"
             onClick={() => router.push("/")}
           >
-            ZP DAO
+            <h2>ZP DAO</h2>
           </button>
 
           <div className="flex items-center space-x-6 z-50">
