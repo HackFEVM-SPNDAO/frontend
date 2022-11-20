@@ -49,7 +49,7 @@ export default function Join() {
     setCsvFile(event.target.files[0]);
   }
 
-  const uploadToServer = async () => {
+  const uploadToServer = async (event: any) => {
     setJoinState(JoinState.UploadingCsv)
 
     try {
@@ -61,7 +61,8 @@ export default function Join() {
       const new_cid = await fetch("/api/ipfs", { method: "POST", body })
         .then((res) => { return res.json() })
 
-      cid = new_cid.cid;
+      cid = new_cid;
+
       setJoinState(JoinState.UploadSuccess)
 
     }
@@ -76,36 +77,45 @@ export default function Join() {
 
   async function onMintToken() {
 
-    // FOR TESTING
-    cid = 'QmVdqhbW4o9sssJKjf1kQS1ShCqG1Byk2smpvwCUn4CMPu';
-    
+    // FOR TESTING    
     if (provider == undefined) {
       console.log('no provider')
       return
     }
+    else if (cid == undefined || cid == '') {
+      console.log('invalid cid')
+      return
+    }
+
+
+    try {
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+
+      const SpendDAO = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
+        abi as ethers.ContractInterface,
+        signer
+      );
+
+      const tx = await SpendDAO.safeMint(account!, cid)
+      // await tx.wait(); // wait for the transaction to be mined
+      setJoinState(JoinState.MintSuccess)
+    }
+    catch (e) {
+      console.log(e);
+      setJoinState(JoinState.MintFailure);
+    }
+
+    // await SpendDAO.balanceOf(account!)
+    // .then(parseInt)
+    // .then(console.log)
 
     // await provider.getBalance(account!)
     //   .then(ethers.utils.formatEther)
     //   .then(console.log)
 
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
 
-    const SpendDAO = new ethers.Contract(
-      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
-      abi as ethers.ContractInterface,
-      signer
-    );
-    
-    // console.log(SpendDAO.address);
-    // SpendDAO.safeMint(account!, cid);
-    await SpendDAO.balanceOf(account!)
-    .then(ethers.utils.formatEther)
-    .then(console.log)
-
-
-
-    // setJoinState(JoinState.MintSuccess)
   }
 
   function onViewDashboard() {
@@ -159,9 +169,9 @@ export default function Join() {
               <button type="submit">Upload</button>
             </form>
 
-            {/* TEST BUTTON */}
+            {/* TEST BUTTON
             <br></br>
-            <button onClick={onMintToken}>Mint Token</button>
+            <button onClick={onMintToken}>Mint Token</button> */}
 
           </div>
           // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">

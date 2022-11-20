@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await submarine.uploadFileOrFolder(csvPath)
     .then( (ipfs_res) => {
-        console.log(ipfs_res.items[0].cid)
+        // console.log(ipfs_res.items[0].cid)
         return res.json(ipfs_res.items[0].cid);
     })
 };
