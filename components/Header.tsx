@@ -1,40 +1,18 @@
 import { useRouter } from "next/router"
 import { FC, useState } from "react"
-import {
-  Chain,
-  useAccount,
-  useDisconnect,
-  useNetwork,
-  useSwitchNetwork,
-} from "wagmi"
+
 import useIsMounted from "../hooks/useIsMounted"
-import ConnectModal from "./ConnectModal"
+
+import { useMMContext } from "../context/MMProvider"
 
 type HeaderProps = {
   type?: string
 }
 
 const Header: FC<HeaderProps> = ({}) => {
+  const mm = useMMContext().mmContext
   const router = useRouter()
   const isMounted = useIsMounted()
-
-  const { address } = useAccount()
-  const { disconnect } = useDisconnect()
-
-  const [openConnectModal, setOpenConnectModal] = useState<boolean>(false)
-
-  const { chain } = useNetwork()
-  const { chains, error, isLoading, switchNetwork } = useSwitchNetwork()
-
-  if (
-    chain &&
-    switchNetwork &&
-    !chains.some((c: Chain) => c.id === chain.id) &&
-    !isLoading &&
-    !error
-  ) {
-    switchNetwork(chains[0].id)
-  }
 
   return (
     <div className="min-h-full shadow-sm">
@@ -44,21 +22,21 @@ const Header: FC<HeaderProps> = ({}) => {
             className="text-extrabold text-4xl text-violet-600 w-32 flex items-center justify-center"
             onClick={() => router.push("/")}
           >
-            <h2>ZP DAO</h2>
+            <h2>SpendDAO</h2>
           </button>
 
           <div className="flex items-center space-x-6 z-50">
-            {!isMounted ? null : address ? (
+            {!isMounted ? null : mm.status == "connected" ? (
               <button
                 className="text-bold text-md rounded-xl text-violet-600 border-2 border-gray-100 py-2 px-6 max-w-xs truncate"
-                onClick={() => disconnect()}
+                // onClick={() => disconnect()}
               >
-                {address}
+                {mm.account}
               </button>
             ) : (
               <button
                 className="text-bold text-md rounded-xl text-violet-600 border-2 border-gray-100 py-2 px-6"
-                onClick={() => setOpenConnectModal(true)}
+                onClick={mm.connect}
               >
                 Sign in with wallet
               </button>
@@ -66,11 +44,12 @@ const Header: FC<HeaderProps> = ({}) => {
           </div>
         </div>
       </div>
-      <ConnectModal
+      {/* <ConnectModal
         onClose={() => setOpenConnectModal(false)}
         open={openConnectModal}
         modalTitle="Connect Wallet"
       />
+      </div>     */}
     </div>
   )
 }

@@ -1,110 +1,111 @@
-import { ethers } from "ethers"
 import { useRouter } from "next/router"
-import { ChangeEvent, useRef, useState } from "react"
+import { ChangeEvent, useRef, useState, useEffect } from "react"
 import { AiFillDatabase, AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { BiUpload } from "react-icons/bi"
 import { IoIosCheckmark } from "react-icons/io"
-import { useAccount, useSigner } from "wagmi"
+
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
 import useIsMounted from "../hooks/useIsMounted"
+
+import { ethers } from "ethers"
+
+import { useEthersContext } from "../context/EthersProvider"
+import { useMMContext } from "../context/MMProvider"
+import { abi } from "../abis/currentABI"
 
 enum JoinState {
   Start = "start",
   UploadingCsv = "uploading-csv",
   UploadSuccess = "upload-success",
   UploadFailure = "upload-failure",
-  EncryptUrl = "encrypt-url",
   MintToken = "mint-token",
   MintSuccess = "mint-success",
   MintFailure = "mint-failure",
 }
 
+let cid = "";
+
 export default function Join() {
+  const mm = useMMContext().mmContext;
+  const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider;
   const router = useRouter()
   const isMounted = useIsMounted()
 
-  const { data: signer } = useSigner()
-  const { address, isConnected } = useAccount()
-
-  const fileRef = useRef<HTMLInputElement | null>()
-
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
+  const [csvFile, setCsvFile] = useState<File>();
 
-  function clickFileInput() {
-    fileRef?.current?.click()
+
+  // loads file client side so server can see it
+  const uploadToClient = async (event: any) => {
+    setCsvFile(event.target.files[0]);
   }
 
-  async function onChangeInputFile(file: File) {
-    if (!file) return
-
-    console.log("File: ", file)
-
-    uploadToServer(file)
-  }
-
-  const uploadToServer = async (file: File) => {
+  const uploadToServer = async (event: any) => {
     setJoinState(JoinState.UploadingCsv)
 
     try {
       const body = new FormData()
-      body.append("file", file!)
-      // body.append("field", file.name)
+      body.append("file", csvFile!)
 
-      await fetch("/api/uploadFile", { method: "POST", body })
+      await fetch("/api/saveFile", { method: "POST", body })
+
+      const new_cid = await fetch("/api/ipfs", { method: "POST", body })
+        .then((res) => { return res.json() })
+
+      cid = new_cid;
+
       setJoinState(JoinState.UploadSuccess)
-    } catch (e: any) {
+    }
+    catch (e: any) {
       console.error(`An error occured during uploading the file: ${e.message}`)
       setJoinState(JoinState.UploadFailure)
     }
+
   }
 
-  async function onEncryptUrl() {
-    console.log("NOT IMPLEMENTED ON_MINT_TOKEN")
 
-    setJoinState(JoinState.MintToken)
-  }
 
   async function onMintToken() {
-    if (!signer || !address) {
-      console.error(`No signer / address found. Need to sign in.`)
+    // FOR TESTING    
+    if (provider == undefined) {
+      console.log('no provider')
+      return
+    }
+    else if (cid == undefined || cid == '') {
+      console.log('invalid cid')
       return
     }
 
-    const signature = await signer?.signMessage(address)
 
-    console.dir(signature)
-    // const contract: Contract // new Contract()
+    try {
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
 
-    // contract.mint()
+      const SpendDAO = new ethers.Contract(
+        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
+        abi as ethers.ContractInterface,
+        signer
+      );
 
-    console.log("NOT IMPLEMENTED ON_MINT_TOKEN")
-    console.log(`signature ${signature}, message ${address}`)
+      const tx = await SpendDAO.safeMint(mm.account!, cid)
+      // await tx.wait(); // wait for the transaction to be mined
+      setJoinState(JoinState.MintSuccess)
+    }
+    catch (e) {
+      console.log(e);
+      setJoinState(JoinState.MintFailure);
+    }
 
-    // verification later on server
+    // await SpendDAO.balanceOf(account!)
+    // .then(parseInt)
+    // .then(console.log)
 
-    console.log(`correct message ${address}`)
+    // await provider.getBalance(account!)
+    //   .then(ethers.utils.formatEther)
+    //   .then(console.log)
 
-    const recoveredAddress = ethers.utils.verifyMessage(address, signature)
-    console.log(
-      "recovered address",
-      recoveredAddress,
-      ", is valid: ",
-      recoveredAddress === (await signer.getAddress())
-    )
 
-    const recoveredInvalidAddress = ethers.utils.verifyMessage(
-      `0x${address}`,
-      signature
-    )
-    console.log(
-      "recovered invalid address",
-      recoveredInvalidAddress,
-      ", is valid: ",
-      recoveredInvalidAddress === (await signer.getAddress())
-    )
-
-    setJoinState(JoinState.MintSuccess)
   }
 
   function onViewDashboard() {
@@ -133,7 +134,7 @@ export default function Join() {
         )
         break
       case JoinState.MintToken:
-        title = "URL encrypted. You can mint your token now"
+        title = "Data encrypted. You can mint your token now"
         break
       case JoinState.MintSuccess:
         title = "Token mint successful"
@@ -151,34 +152,53 @@ export default function Join() {
     switch (joinState) {
       case JoinState.Start:
         content = (
+          // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
+          // <button
+          //   className="mx-auto flex flex-col items-center rounded-xl"
+          //   onClick={() => clickFileInput()}
+          // >
+          //   <div className="text-violet-600 text-bold text-5xl ">
+          //     <BiUpload />
+          //   </div>
+
+
           <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
-            <button
-              className="mx-auto flex flex-col items-center rounded-xl"
-              onClick={() => clickFileInput()}
-            >
-              <div className="text-violet-600 text-bold text-5xl ">
-                <BiUpload />
-              </div>
+            <form onSubmit={uploadToServer}>
+              <input id="images" type="file" onChange={uploadToClient} />
+              <br></br>
+              <button type="submit">Upload</button>
+            </form>
 
-              <p>
-                <span className="text-violet-600 text-bold">Browse</span> your
-                files
-              </p>
-            </button>
+            {/* TEST BUTTON
+            <br></br>
+            <button onClick={onMintToken}>Mint Token</button> */}
 
-            <input
-              ref={(ref) => (fileRef.current = ref)}
-              type="file"
-              accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              className="hidden"
-              // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                const file = e?.target?.files?.[0]
-                if (!file) return
-                onChangeInputFile(file)
-              }}
-            />
           </div>
+          // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
+          //   <button
+          //     className="mx-auto flex flex-col items-center rounded-xl"
+          //     onClick={uploadToServer}
+          //   >
+          //     <div className="text-violet-600 text-bold text-5xl ">
+          //       <BiUpload />
+          //     </div>
+
+          //     <p>
+          //       <span className="text-violet-600 text-bold">Browse</span> your
+          //       files
+          //     </p>
+          //   </button>
+
+
+          //   <input
+          //     ref={(ref) => (fileRef.current = ref)}
+          //     type="file"
+          //     accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          //     className="hidden"
+          //     // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
+          //     onChange={uploadToClient} 
+          //   />
+          // </div>
         )
         break
       case JoinState.UploadingCsv:
@@ -194,26 +214,27 @@ export default function Join() {
         )
         break
       case JoinState.UploadSuccess:
-        content = (
-          <div className="mx-auto w-1/2">
-            <div className="mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
-              <div className="mx-auto flex flex-col items-center rounded-xl">
-                <div className="rounded-full py-4 px-4 text-bold text-5xl border-2 border-violet-600 text-violet-600">
-                  <IoIosCheckmark />
-                </div>
+        // content = (
+        //   <div className="mx-auto w-1/2">
+        //     <div className="mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
+        //       <div className="mx-auto flex flex-col items-center rounded-xl">
+        //         <div className="rounded-full py-4 px-4 text-bold text-5xl border-2 border-violet-600 text-violet-600">
+        //           <IoIosCheckmark />
+        //         </div>
 
-                <p className="mt-4">Your IPFS link has been generated!.</p>
-                <p># CID #</p>
-              </div>
-            </div>
-            <button
-              className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
-              onClick={() => onEncryptUrl()}
-            >
-              Encrypt URL
-            </button>
-          </div>
-        )
+        //         <p className="mt-4">Your IPFS link has been generated!.</p>
+        //         <p># CID #</p>
+        //       </div>
+        //     </div>
+        //     <button
+        //       className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
+        //       onClick={() => onEncryptUrl()}
+        //     >
+        //       Encrypt URL
+        //     </button>
+        //   </div>
+        // )
+        setJoinState(JoinState.MintToken)
 
         break
       case JoinState.UploadFailure:
@@ -278,7 +299,8 @@ export default function Join() {
     <PageLayout containerClassName="bg-gray-50">
       <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
-          {!isMounted ? null : !isConnected ? (
+
+          {!isMounted ? null : mm.status != 'connected' ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
             <>
