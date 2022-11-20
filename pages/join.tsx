@@ -31,25 +31,26 @@ export default function Join() {
   const isMounted = useIsMounted()
 
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
-  const [csvFile, setCsvFile] = useState<File>()
 
   const fileRef = useRef<HTMLInputElement | null>()
 
   // loads file client side so server can see it
   const uploadToClient = async (event: any) => {
-    setCsvFile(event.target.files[0])
+    const file = event.target.files[0]
+
+    uploadToServer(file)
   }
 
   function clickFileInput() {
     fileRef?.current?.click()
   }
 
-  const uploadToServer = async () => {
+  const uploadToServer = async (file: File) => {
     setJoinState(JoinState.UploadingCsv)
 
     try {
       const body = new FormData()
-      body.append("file", csvFile!)
+      body.append("file", file!)
 
       await fetch("/api/saveFile", { method: "POST", body })
 
@@ -159,21 +160,20 @@ export default function Join() {
           //   </div>
 
           <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
-            <form onSubmit={uploadToServer}>
+            {/* <form onSubmit={uploadToServer}>
               <input id="images" type="file" onChange={uploadToClient} />
               <br></br>
               <button type="submit">Upload</button>
-            </form>
+            </form> */}
 
             {/* TEST BUTTON */}
 
             {/* <button onClick={onMintToken}>Mint Token</button> */}
-{/* 
+
             <button
               className="mx-auto flex flex-col items-center rounded-xl"
               onClick={() => {
                 clickFileInput()
-                uploadToServer()
               }}
             >
               <div className="text-violet-600 text-bold text-5xl ">
@@ -189,11 +189,12 @@ export default function Join() {
             <input
               ref={(ref) => (fileRef.current = ref)}
               type="file"
-              accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              accept=".csv"
+              // accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="hidden"
               // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
               onChange={uploadToClient}
-            /> */}
+            />
           </div>
         )
         break
