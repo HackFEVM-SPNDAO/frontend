@@ -8484,6 +8484,11 @@
   "resolved" "https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz"
   "version" "1.4.1"
 
+"metamask-react@^2.4.0":
+  "integrity" "sha512-dQDu8aop89iZjvjldCXnEEASgbACCeyBeylqVTPgqVurHIFB666NTNfteiQstzVYg0k3vyup+FNgqNF9g2/0WA=="
+  "resolved" "https://registry.npmjs.org/metamask-react/-/metamask-react-2.4.0.tgz"
+  "version" "2.4.0"
+
 "metro-babel-transformer@0.72.3":
   "integrity" "sha512-PTOR2zww0vJbWeeM3qN90WKENxCLzv9xrwWaNtwVlhcV8/diNdNe82sE1xIxLFI6OQuAVwNMv1Y7VsO2I7Ejrw=="
   "resolved" "https://registry.npmjs.org/metro-babel-transformer/-/metro-babel-transformer-0.72.3.tgz"

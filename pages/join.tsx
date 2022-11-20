@@ -1,40 +1,35 @@
-import { ethers } from "ethers"
 import { useRouter } from "next/router"
 import { ChangeEvent, useRef, useState } from "react"
 import { AiFillDatabase, AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { BiUpload } from "react-icons/bi"
 import { IoIosCheckmark } from "react-icons/io"
-import { useAccount, useSigner } from "wagmi"
+
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
 import useIsMounted from "../hooks/useIsMounted"
+
+import { ethers } from "ethers"
+import { useMetaMask } from "metamask-react"
 
 enum JoinState {
   Start = "start",
   UploadingCsv = "uploading-csv",
   UploadSuccess = "upload-success",
   UploadFailure = "upload-failure",
-  EncryptUrl = "encrypt-url",
   MintToken = "mint-token",
   MintSuccess = "mint-success",
   MintFailure = "mint-failure",
 }
 
 export default function Join() {
+  const { status, connect, account, chainId, ethereum } = useMetaMask();
+
   const router = useRouter()
   const isMounted = useIsMounted()
 
-  const { data: signer } = useSigner()
-  const { address, isConnected } = useAccount()
-
-  const fileRef = useRef<HTMLInputElement | null>()
-
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
-
-  // tracks state of file to be uploaded
+  const [cid, setCid] = useState<string>("");
   const [csvFile, setCsvFile] = useState<File>();
-
-  // const [cid, setCid] = useState<string>();
 
 
   // loads file client side so server can see it
@@ -42,22 +37,21 @@ export default function Join() {
     setCsvFile(event.target.files[0]);
   }
 
-
   const uploadToServer = async () => {
     setJoinState(JoinState.UploadingCsv)
 
-    try {
-      console.log(`csvFile: ${csvFile}`);
+    try {      
       const body = new FormData()
       body.append("file", csvFile!)
 
       await fetch("/api/saveFile", { method: "POST", body })      
 
-      const cid = await fetch("/api/ipfs", { method: "POST", body })
+      const new_cid = await fetch("/api/ipfs", { method: "POST", body })
       .then((res) => {return res.json()})
       
-
+      setCid(new_cid);
       setJoinState(JoinState.UploadSuccess)
+
     }
     catch (e: any) {
       console.error(`An error occured during uploading the file: ${e.message}`)
@@ -66,50 +60,10 @@ export default function Join() {
 
   }
 
-  async function onEncryptUrl() {
-    console.log("NOT IMPLEMENTED ON_MINT_TOKEN")
-
-    setJoinState(JoinState.MintToken)
-  }
+  
 
   async function onMintToken() {
-    if (!signer || !address) {
-      console.error(`No signer / address found. Need to sign in.`)
-      return
-    }
 
-    const signature = await signer?.signMessage(address)
-
-    console.dir(signature)
-    // const contract: Contract // new Contract()
-
-    // contract.mint()
-
-    console.log("NOT IMPLEMENTED ON_MINT_TOKEN")
-    console.log(`signature ${signature}, message ${address}`)
-
-    // verification later on server
-
-    console.log(`correct message ${address}`)
-
-    const recoveredAddress = ethers.utils.verifyMessage(address, signature)
-    console.log(
-      "recovered address",
-      recoveredAddress,
-      ", is valid: ",
-      recoveredAddress === (await signer.getAddress())
-    )
-
-    const recoveredInvalidAddress = ethers.utils.verifyMessage(
-      `0x${address}`,
-      signature
-    )
-    console.log(
-      "recovered invalid address",
-      recoveredInvalidAddress,
-      ", is valid: ",
-      recoveredInvalidAddress === (await signer.getAddress())
-    )
 
     setJoinState(JoinState.MintSuccess)
   }
@@ -140,7 +94,7 @@ export default function Join() {
         )
         break
       case JoinState.MintToken:
-        title = "URL encrypted. You can mint your token now"
+        title = "Data encrypted. You can mint your token now"
         break
       case JoinState.MintSuccess:
         title = "Token mint successful"
@@ -205,20 +159,7 @@ export default function Join() {
         )
         break
       case JoinState.UploadSuccess:
-        content = (
-          <div className="flex flex-col items-center mx-auto mt-24 py-24 px-8">
-            <div className="text-gray-500 bg-black rounded-full py-4 px-4 text-bold text-5xl ">
-              <AiFillDatabase />
-            </div>
-
-            <button
-              className="bg-violet-600 text-white text-bold text-xl rounded-xl mt-24 px-16 py-2"
-              onClick={() => onEncryptUrl()}
-            >
-              Encrypt URL
-            </button>
-          </div>
-        )
+        setJoinState(JoinState.MintToken)
 
         break
       case JoinState.UploadFailure:
@@ -283,7 +224,7 @@ export default function Join() {
     <PageLayout containerClassName="bg-gray-50">
       <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
-          {!isMounted ? null : !isConnected ? (
+          {!isMounted ? null : status != 'connected' ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
             <>
