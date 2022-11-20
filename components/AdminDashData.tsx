@@ -7,13 +7,11 @@ import { SBT_ABI } from "../abis/currentABI"
 
 
 
-export default function UserDashData() {
+export default function AdminDashData() {
     const mm = useMMContext().mmContext;
     const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider;
     const [list, setList] = useState<any[]>([]);
     const [loaded, setLoaded] = useState<boolean>(false);
-
-
 
     // updates dashboard if mm or provider changes
     useEffect(() => {
@@ -21,17 +19,15 @@ export default function UserDashData() {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SBT_ADDR!, SBT_ABI, signer);
 
-            const bal = await contract.balanceOf(mm.account!);
-
+            const bal = await contract.totalSupply();
 
             for (let i = 0; i < bal; i++) {
-                const tokenID = await contract.ownerToTokenIds(mm.account!, i);
+                const tokenID = await contract.tokenByIndex(i);
                 const token = await contract.tokenURI(tokenID);
                 setList(list => [...list, token]);
                 console.log(`tokenID: ${tokenID}, token: ${token}`);
             }
             setLoaded(true);
-
         }
 
         // only run when mm and provider are defined

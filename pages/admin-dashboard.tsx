@@ -8,6 +8,7 @@ import { useMMContext } from "../context/MMProvider"
 import { ADMIN_ABI } from "../abis/currentABI"
 import { useEffect } from "react";
 
+import AdminDashData from "../components/AdminDashData";
 
 export default function Home() {
   const mm = useMMContext().mmContext
@@ -36,7 +37,7 @@ export default function Home() {
           signer
         )
         const bal = await SpendAdmin.balanceOf(mm.account!);
-        console.log(`bal: ${bal}`)
+        // console.log(`bal: ${bal}`)
   
         if (bal > 0) {
           console.log('admin NFT found')          
@@ -64,18 +65,9 @@ export default function Home() {
           </h1>
 
           <div className="mt-8 flex flex-col items-center mx-auto">
-            <Image
-              src="/assets/data_analysis_i.png"
-              alt="data analysis visualization"
-              width={800}
-              height={800}
-            />
-            <Image
-              src="/assets/data_analysis_ii.png"
-              alt="data analysis visualization"
-              width={800}
-              height={800}
-            />
+
+          <AdminDashData />
+
           </div>
         </div>
       </div>
