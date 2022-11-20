@@ -1,9 +1,8 @@
-import { useRouter } from "next/router"
 import PageLayout from "../components/layouts/PageLayout"
+import UserDashData from "../components/UserDashData"
 
 export default function Home() {
-  const router = useRouter()
-
+    
   return (
     <PageLayout>
       <div className="w-full min-h-screen bg-cover">
@@ -12,6 +11,11 @@ export default function Home() {
             Dashboard
           </h1>
         </div>
+
+        <div className="text-center mt-32">
+          <UserDashData />
+        </div>
+
       </div>
     </PageLayout>
   )
