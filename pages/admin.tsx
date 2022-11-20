@@ -167,7 +167,7 @@ export default function Home() {
                   <div className="ml-8 flex flex-col items-start">
                     <p className="text-bold text-gray-500">SBT Contract</p>
                     <p className="truncate max-w-xs text-bold text-gray-500">
-                      {process.env.NEXT_PUBLIC_DEPLOYED_CONTRACT_ADDRESS!}
+                      {process.env.NEXT_PUBLIC_SBT_ADDR!}
                     </p>
                   </div>
                   <div className="ml-8 flex flex-col items-start">

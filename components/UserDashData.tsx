@@ -18,7 +18,7 @@ export default function UserDashData() {
     useEffect(() => {
         const getNFTs = async () => {
             const signer = provider.getSigner();
-            const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!, abi, signer);
+            const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SBT_ADDR!, abi, signer);
 
             const bal = await contract.balanceOf(mm.account!);
 

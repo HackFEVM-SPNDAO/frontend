@@ -76,7 +76,7 @@ export default function Join() {
       const signer = provider.getSigner()
 
       const SpendDAO = new ethers.Contract(
-        process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
+        process.env.NEXT_PUBLIC_SBT_ADDR!,
         abi as ethers.ContractInterface,
         signer
       )
