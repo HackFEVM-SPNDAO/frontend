@@ -21,6 +21,8 @@ enum JoinState {
   MintFailure = "mint-failure",
 }
 
+let cid = "";
+
 export default function Join() {
   const { status, connect, account, chainId, ethereum } = useMetaMask();
 
@@ -28,7 +30,6 @@ export default function Join() {
   const isMounted = useIsMounted()
 
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
-  const [cid, setCid] = useState<string>("");
   const [csvFile, setCsvFile] = useState<File>();
 
 
@@ -49,7 +50,7 @@ export default function Join() {
       const new_cid = await fetch("/api/ipfs", { method: "POST", body })
       .then((res) => {return res.json()})
       
-      setCid(new_cid);
+      cid = new_cid.cid;
       setJoinState(JoinState.UploadSuccess)
 
     }
@@ -63,9 +64,24 @@ export default function Join() {
   
 
   async function onMintToken() {
+    
+    // FOR TESTING
+    cid = 'QmVdqhbW4o9sssJKjf1kQS1ShCqG1Byk2smpvwCUn4CMPu';
+    console.log(account)
+    console.log(cid);
+    console.log(status)
+    
+    console.log(chainId)
+    console.log(ethereum)
+
+    let provider = new ethers.providers.JsonRpcProvider("https://wallaby.node.glif.io/rpc/v0");
+    await provider.getBalance(account!)
+    .then(ethers.utils.formatEther)
+    .then(console.log)
 
 
-    setJoinState(JoinState.MintSuccess)
+
+    // setJoinState(JoinState.MintSuccess)
   }
 
   function onViewDashboard() {
@@ -118,6 +134,11 @@ export default function Join() {
               <br></br>
               <button type="submit">Upload</button>
             </form>
+            
+            {/* TEST BUTTON */}
+            <br></br>
+            <button onClick={onMintToken}>Mint Token</button>
+
           </div>
           // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
           //   <button
@@ -224,6 +245,7 @@ export default function Join() {
     <PageLayout containerClassName="bg-gray-50">
       <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
+
           {!isMounted ? null : status != 'connected' ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
