@@ -1,5 +1,5 @@
 import { useRouter } from "next/router"
-import { ChangeEvent, useRef, useState } from "react"
+import { ChangeEvent, useRef, useState, useEffect } from "react"
 import { AiFillDatabase, AiFillStar, AiOutlineStar } from "react-icons/ai"
 import { BiUpload } from "react-icons/bi"
 import { IoIosCheckmark } from "react-icons/io"
@@ -26,6 +26,17 @@ let cid = "";
 export default function Join() {
   const { status, connect, account, chainId, ethereum } = useMetaMask();
 
+  const [provider, setProvider] = useState<any>(null);
+  const abi = require('../abis/SpendDAO.json').abi;
+  useEffect(() => {
+    try {
+      setProvider(new ethers.providers.Web3Provider((window as any).ethereum, "any"));
+    } catch (e) {
+      console.log(e);
+    }
+  }, [])
+
+
   const router = useRouter()
   const isMounted = useIsMounted()
 
@@ -41,15 +52,15 @@ export default function Join() {
   const uploadToServer = async () => {
     setJoinState(JoinState.UploadingCsv)
 
-    try {      
+    try {
       const body = new FormData()
       body.append("file", csvFile!)
 
-      await fetch("/api/saveFile", { method: "POST", body })      
+      await fetch("/api/saveFile", { method: "POST", body })
 
       const new_cid = await fetch("/api/ipfs", { method: "POST", body })
-      .then((res) => {return res.json()})
-      
+        .then((res) => { return res.json() })
+
       cid = new_cid.cid;
       setJoinState(JoinState.UploadSuccess)
 
@@ -61,23 +72,32 @@ export default function Join() {
 
   }
 
-  
+
 
   async function onMintToken() {
-    
+
     // FOR TESTING
     cid = 'QmVdqhbW4o9sssJKjf1kQS1ShCqG1Byk2smpvwCUn4CMPu';
-    console.log(account)
-    console.log(cid);
-    console.log(status)
-    
-    console.log(chainId)
-    console.log(ethereum)
+    // console.log(account)
+    // console.log(cid);
+    // console.log(status)
 
-    let provider = new ethers.providers.JsonRpcProvider("https://wallaby.node.glif.io/rpc/v0");
+    // console.log(chainId)
+    // console.log(ethereum)
+
+    // let provider = new ethers.providers.JsonRpcProvider("https://wallaby.node.glif.io/rpc/v0");
+    // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    if (provider == undefined) {
+      console.log('no provider')
+      return
+    }
     await provider.getBalance(account!)
-    .then(ethers.utils.formatEther)
-    .then(console.log)
+      .then(ethers.utils.formatEther)
+      .then(console.log)
+
+    await provider.send("eth_requestAccounts", []);
+    // const signer = provider.getSigner();
+
 
 
 
@@ -134,7 +154,7 @@ export default function Join() {
               <br></br>
               <button type="submit">Upload</button>
             </form>
-            
+
             {/* TEST BUTTON */}
             <br></br>
             <button onClick={onMintToken}>Mint Token</button>
