@@ -78,26 +78,30 @@ export default function Join() {
 
     // FOR TESTING
     cid = 'QmVdqhbW4o9sssJKjf1kQS1ShCqG1Byk2smpvwCUn4CMPu';
-    // console.log(account)
-    // console.log(cid);
-    // console.log(status)
-
-    // console.log(chainId)
-    // console.log(ethereum)
-
-    // let provider = new ethers.providers.JsonRpcProvider("https://wallaby.node.glif.io/rpc/v0");
-    // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    
     if (provider == undefined) {
       console.log('no provider')
       return
     }
-    await provider.getBalance(account!)
-      .then(ethers.utils.formatEther)
-      .then(console.log)
+
+    // await provider.getBalance(account!)
+    //   .then(ethers.utils.formatEther)
+    //   .then(console.log)
 
     await provider.send("eth_requestAccounts", []);
-    // const signer = provider.getSigner();
+    const signer = provider.getSigner();
 
+    const SpendDAO = new ethers.Contract(
+      process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
+      abi as ethers.ContractInterface,
+      signer
+    );
+    
+    // console.log(SpendDAO.address);
+    // SpendDAO.safeMint(account!, cid);
+    await SpendDAO.balanceOf(account!)
+    .then(ethers.utils.formatEther)
+    .then(console.log)
 
 
 
