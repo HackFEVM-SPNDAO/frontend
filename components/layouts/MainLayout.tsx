@@ -11,8 +11,8 @@ const MainLayout: FC<MainLayoutProps> = ({ children }) => {
   return (
     <div>
       <Head>
-        <title>ZP DAO</title>
-        <meta name="description" content="ZP DAO - Protect your data and earn!" />
+        <title>Spend DAO</title>
+        <meta name="description" content="Spend DAO - Protect your data and earn!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

@@ -15,7 +15,7 @@ export default function Home() {
     <div className="w-full min-h-screen bg-cover bg-[url('/assets/landing_bg.png')]">
       <div className="text-center pt-32">
         <h1 className="font-bold text-violet-600 text-6xl leading-tight">
-          ZP DAO
+          Spend DAO
         </h1>
 
         <div className="text-bold text-2xl text-gray-500 mt-8">
@@ -57,7 +57,7 @@ export default function Home() {
           }}
         >
           {activeChoice === UserChoice.EndUser
-            ? "Join ZP DAO"
+            ? "Join Spend DAO"
             : "Login with the wallet"}
         </button>
       </div>
