@@ -3,12 +3,14 @@ import { useRouter } from "next/router"
 import { useState } from "react"
 import { AiFillDatabase, AiFillStar } from "react-icons/ai"
 import { IoIosCheckmark } from "react-icons/io"
-import { abi } from "../abis/currentABI"
+
+import useIsMounted from "../hooks/useIsMounted"
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
+
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
-import useIsMounted from "../hooks/useIsMounted"
+import { abi } from "../abis/currentABI"
 
 enum JoinState {
   Start = "start",

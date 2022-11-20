@@ -4,11 +4,14 @@ import { useEffect, useState } from "react"
 import { AiFillStar } from "react-icons/ai"
 import { FiShoppingBag } from "react-icons/fi"
 import { IoIosCheckmark } from "react-icons/io"
-import { useAccount, useSigner } from "wagmi"
-import ZPSBTJSON from "../abis/ZPSBT.json"
+
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
 import useIsMounted from "../hooks/useIsMounted"
+
+import { useEthersContext } from "../context/EthersProvider"
+import { useMMContext } from "../context/MMProvider"
+import { abi } from "../abis/currentABI"
 
 enum AdminState {
   NoData = "noData",
@@ -24,11 +27,12 @@ type EncryptedData = {
 }
 
 export default function Home() {
+  const mm = useMMContext().mmContext
+  const provider = useEthersContext()
+    .ethersContext as ethers.providers.Web3Provider
   const router = useRouter()
   const isMounted = useIsMounted()
 
-  const { data: signer } = useSigner()
-  const { address, isConnected } = useAccount()
 
   const [adminState, setAdminState] = useState(AdminState.NoData)
 
@@ -47,14 +51,7 @@ export default function Home() {
       if (adminState === AdminState.FetchData && !isLoadingData) {
         setIsLoadingData(true)
 
-        try {
-          const contract = new Contract(
-            process.env.NEXT_PUBLIC_DEPLOYED_CONTRACT_ADDRESS!,
-            ZPSBTJSON
-          )
-
-          //   const currentTokenId = await contract.getCurrentTokenId()
-
+        try {         
           setEncryptedData([
             {
               address: ethers.constants.AddressZero,
@@ -74,18 +71,10 @@ export default function Home() {
   }, [adminState, isLoadingData])
 
   async function onDecryptData(data: EncryptedData) {
-    if (!signer || !address) {
-      console.error(`No signer / address found. Need to sign in.`)
-      return
-    }
-
+   
     setIsLoadingDecryptionFor(data.address)
     try {
-      const signature = await signer?.signMessage(
-        JSON.stringify({ address, data })
-      )
-
-      console.log(signature)
+     
 
       // call contract to decrypt
 
@@ -233,7 +222,7 @@ export default function Home() {
     <PageLayout containerClassName="bg-gray-50">
       <div className="w-full min-h-screen bg-cover">
         <div className="text-center mt-32">
-          {!isMounted ? null : !isConnected ? (
+          {!isMounted ? null : mm.status != "connected" ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
             <>
