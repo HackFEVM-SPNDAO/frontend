@@ -17,18 +17,36 @@ export default function UserDashData() {
 
     // updates dashboard if mm or provider changes
     useEffect(() => {
-        const getNFTs = async () => {
+        const getNFTs = async () => {     
+                   
+            setLoaded(false);
+            setList([]);
+
             const signer = provider.getSigner();
             const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SBT_ADDR!, SBT_ABI, signer);
-
             const bal = await contract.balanceOf(mm.account!);
+            
+            // first token is just to initialize the array
+            for (let i = 1; i < bal; i++) {
+                await contract.ownerToTokenIds(mm.account!, i)
+                    .then(parseInt)
+                    .then((id: any) => {
+                        contract.cidList(id)
+                            .then((cid: string) => {
+                                fetch('/api/getData', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ cid: cid })
+                                })
+                                    .then(res => res.json())
+                                    .then((data) => {
+                                        setList(list => [...list, JSON.stringify(data)]);
+                                    })
+                            })
 
-
-            for (let i = 0; i < bal; i++) {
-                const tokenID = await contract.ownerToTokenIds(mm.account!, i);
-                const token = await contract.tokenURI(tokenID);
-                setList(list => [...list, token]);
-                console.log(`tokenID: ${tokenID}, token: ${token}`);
+                    });
             }
             setLoaded(true);
 

@@ -22,10 +22,12 @@ export default function AdminDashData() {
             const bal = await contract.totalSupply();
 
             for (let i = 0; i < bal; i++) {
-                const tokenID = await contract.tokenByIndex(i);
-                const token = await contract.tokenURI(tokenID);
-                setList(list => [...list, token]);
-                console.log(`tokenID: ${tokenID}, token: ${token}`);
+                let cid = await contract.tokenURI(i);
+                console.log(cid)
+                // const tokenID = await contract.tokenByIndex(i);
+                // const token = await contract.tokenURI(tokenID);
+                // setList(list => [...list, token]);
+                // console.log(`tokenID: ${tokenID}, token: ${token}`);
             }
             setLoaded(true);
         }
