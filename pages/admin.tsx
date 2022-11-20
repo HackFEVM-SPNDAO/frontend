@@ -28,8 +28,7 @@ type EncryptedData = {
 
 export default function Home() {
   const mm = useMMContext().mmContext
-  const provider = useEthersContext()
-    .ethersContext as ethers.providers.Web3Provider
+  const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider
   const router = useRouter()
   const isMounted = useIsMounted()
 
@@ -47,6 +46,10 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // check for admin NFT
+    
+
+
     async function getEncryptedData() {
       if (adminState === AdminState.FetchData && !isLoadingData) {
         setIsLoadingData(true)
