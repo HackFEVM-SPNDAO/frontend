@@ -1,13 +1,12 @@
 import { ethers } from "ethers"
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { AiFillDatabase, AiFillStar } from "react-icons/ai"
+import { BiUpload } from "react-icons/bi"
 import { IoIosCheckmark } from "react-icons/io"
-
 import useIsMounted from "../hooks/useIsMounted"
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
-
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
 import { abi } from "../abis/currentABI"
@@ -34,12 +33,18 @@ export default function Join() {
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
   const [csvFile, setCsvFile] = useState<File>()
 
+  const fileRef = useRef<HTMLInputElement | null>()
+
   // loads file client side so server can see it
   const uploadToClient = async (event: any) => {
     setCsvFile(event.target.files[0])
   }
 
-  const uploadToServer = async (event: any) => {
+  function clickFileInput() {
+    fileRef?.current?.click()
+  }
+
+  const uploadToServer = async () => {
     setJoinState(JoinState.UploadingCsv)
 
     try {
@@ -154,40 +159,42 @@ export default function Join() {
           //   </div>
 
           <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
-            <form onSubmit={uploadToServer}>
+            {/* <form onSubmit={uploadToServer}>
               <input id="images" type="file" onChange={uploadToClient} />
               <br></br>
               <button type="submit">Upload</button>
-            </form>
+            </form> */}
 
-            {/* TEST BUTTON
-            <br></br>
-            <button onClick={onMintToken}>Mint Token</button> */}
+            {/* TEST BUTTON */}
+
+            {/* <button onClick={onMintToken}>Mint Token</button> */}
+
+            <button
+              className="mx-auto flex flex-col items-center rounded-xl"
+              onClick={() => {
+                clickFileInput()
+                uploadToServer()
+              }}
+            >
+              <div className="text-violet-600 text-bold text-5xl ">
+                <BiUpload />
+              </div>
+
+              <p>
+                <span className="text-violet-600 text-bold">Browse</span> your
+                files
+              </p>
+            </button>
+
+            <input
+              ref={(ref) => (fileRef.current = ref)}
+              type="file"
+              accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
+              onChange={uploadToClient}
+            />
           </div>
-          // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
-          //   <button
-          //     className="mx-auto flex flex-col items-center rounded-xl"
-          //     onClick={uploadToServer}
-          //   >
-          //     <div className="text-violet-600 text-bold text-5xl ">
-          //       <BiUpload />
-          //     </div>
-
-          //     <p>
-          //       <span className="text-violet-600 text-bold">Browse</span> your
-          //       files
-          //     </p>
-          //   </button>
-
-          //   <input
-          //     ref={(ref) => (fileRef.current = ref)}
-          //     type="file"
-          //     accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          //     className="hidden"
-          //     // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
-          //     onChange={uploadToClient}
-          //   />
-          // </div>
         )
         break
       case JoinState.UploadingCsv:
