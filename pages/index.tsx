@@ -57,7 +57,7 @@ export default function Home() {
           }}
         >
           {activeChoice === UserChoice.EndUser
-            ? "Join Spend DAO"
+            ? "Join SPN DAO"
             : "Login with the wallet"}
         </button>
       </div>
