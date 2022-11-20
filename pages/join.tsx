@@ -10,6 +10,7 @@ import Spinner from "../components/Spinner"
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
 import { SBT_ABI } from "../abis/currentABI"
+var crypto = require("crypto");
 
 enum JoinState {
   Start = "start",
@@ -51,6 +52,7 @@ export default function Join() {
     try {
       const body = new FormData()
       body.append("file", file!)
+      body.append('id', crypto.randomBytes(20).toString('hex'));
 
       await fetch("/api/saveFile", { method: "POST", body })
 

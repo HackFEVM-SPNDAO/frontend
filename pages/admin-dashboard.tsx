@@ -49,7 +49,7 @@ export default function Home() {
       }
       catch (e) {
         console.log(mm.account)                
-        // router.push("/")
+        router.push("/")
       }
     }
 
