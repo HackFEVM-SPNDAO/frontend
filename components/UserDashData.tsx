@@ -1,40 +1,49 @@
-import { useRouter } from "next/router"
-import PageLayout from "../components/layouts/PageLayout"
-
+import { useEffect } from "react"
 import { ethers } from "ethers"
-import { useMetaMask } from "metamask-react"
 
-import { useState, useEffect } from "react"
+import { useMMContext } from "../context/MMProvider"
+import { useEthersContext } from "../context/EthersProvider"
+import { abi } from "../abis/currentABI"
 
-let nfts = ['1', '2', '3'];
+let nfts:string[] = [];
 
 export default function UserDashData() {
-    const router = useRouter()
-    const { status, connect, account, chainId, ethereum } = useMetaMask();
+    
+    const mm = useMMContext().mmContext;
+    const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider;
 
-    const [provider, setProvider] = useState<any>(null);
-    const abi = require('../abis/SpendDAO.json').abi;
-
-    async function getNFTs() {
-        if (provider == undefined) {
-            console.log('no provider')
-            return
-        }
-        else if (status != 'connected') {
-            console.log('not connected')
-            return
-        }
-        console.log('running')
-        console.log(account)
+    const getNFTs = async () => {
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!, abi, provider.getSigner(mm.account!));
+        const nftList = await contract.balanceOf(mm.account!);
+        console.log(nftList);
+        nfts = nftList;
     }
 
-    const listItems = nfts.map((nft) =>
-        <li key={nft.toString()}>
-            {nft}
-        </li>
-    );
+    // updates dashboard if mm or provider changes
+    useEffect(() => {
 
+
+        // only run when mm and provider are defined
+        if (provider != undefined && mm != undefined && mm.status == 'connected') {
+            console.log('here')
+            getNFTs();
+        }
+
+    }, [provider, mm]);
+    
     return (
-        <ul>{listItems}</ul>
+        <ul>
+            {
+                nfts.map((nft) => {
+                    return (
+                        <li key={''}>
+                            {nft}
+                        </li>
+                    )
+                })
+                    
+            }
+        </ul>
     )
 }
