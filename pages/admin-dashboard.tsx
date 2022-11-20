@@ -44,12 +44,12 @@ export default function Home() {
         }
         else {
           console.log('NOT found')
-          router.push("/")
+          // router.push("/")
         }
       }
       catch (e) {
         console.log(mm.account)                
-        router.push("/")
+        // router.push("/")
       }
     }
 
