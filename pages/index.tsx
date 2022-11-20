@@ -52,7 +52,7 @@ export default function Home() {
           className="block mx-auto bg-violet-600 text-white text-bold text-xl rounded-xl mt-48 px-16 py-2"
           onClick={() => {
             router.push(
-              activeChoice === UserChoice.EndUser ? "/join" : "/admin"
+              activeChoice === UserChoice.EndUser ? "/join" : "/admin-dashboard"
             )
           }}
         >
