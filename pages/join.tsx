@@ -159,16 +159,16 @@ export default function Join() {
           //   </div>
 
           <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
-            {/* <form onSubmit={uploadToServer}>
+            <form onSubmit={uploadToServer}>
               <input id="images" type="file" onChange={uploadToClient} />
               <br></br>
               <button type="submit">Upload</button>
-            </form> */}
+            </form>
 
             {/* TEST BUTTON */}
 
             {/* <button onClick={onMintToken}>Mint Token</button> */}
-
+{/* 
             <button
               className="mx-auto flex flex-col items-center rounded-xl"
               onClick={() => {
@@ -193,7 +193,7 @@ export default function Join() {
               className="hidden"
               // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
               onChange={uploadToClient}
-            />
+            /> */}
           </div>
         )
         break
