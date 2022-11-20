@@ -19,6 +19,7 @@ enum AdminState {
   FetchError = "fetchError",
   DecryptSuccess = "decryptSuccess",
   DecryptFailure = "decryptFailure",
+  AccessDenied = "accessDenied",
 }
 
 type EncryptedData = {
@@ -45,16 +46,84 @@ export default function Home() {
     setAdminState(AdminState.FetchData)
   }
 
+  const checkAdminNFT = async () => {
+    if (provider == undefined) {
+      console.log("no provider")
+      setAdminState(AdminState.AccessDenied);
+      return
+    } else if (mm.status != 'connected') {
+      console.log("mm not connected")
+      return
+    }
+
+    try {
+      await provider.send("eth_requestAccounts", [])
+      const signer = provider.getSigner()
+
+      const SpendAdmin = new ethers.Contract(
+        process.env.NEXT_PUBLIC_ADMIN_ADDR!,
+        ADMIN_ABI as ethers.ContractInterface,
+        signer
+      )
+      const bal = await SpendAdmin.balanceOf(mm.account!);
+      console.log(`bal: ${bal}`)
+
+      if (bal > 0) {
+        console.log('admin NFT found')
+      }
+      else {
+        console.log('NOT found')
+      }
+    }
+    catch (e) {
+      console.log(mm.account)
+      console.log(`error in admin check ${e}`)
+      setAdminState(AdminState.AccessDenied);
+    }
+  }
+
   useEffect(() => {
     // check for admin NFT
-    
-
+    async function checkForAdminNFT() {
+      if (provider == undefined) {
+        console.log("no provider")        
+        return
+      } else if (mm.status != 'connected') {
+        console.log("mm not connected")
+        return
+      }
+  
+      try {
+        await provider.send("eth_requestAccounts", [])
+        const signer = provider.getSigner()
+  
+        const SpendAdmin = new ethers.Contract(
+          process.env.NEXT_PUBLIC_ADMIN_ADDR!,
+          ADMIN_ABI as ethers.ContractInterface,
+          signer
+        )
+        const bal = await SpendAdmin.balanceOf(mm.account!);
+        console.log(`bal: ${bal}`)
+  
+        if (bal > 0) {
+          console.log('admin NFT found')
+        }
+        else {
+          console.log('NOT found')
+          setAdminState(AdminState.AccessDenied);
+        }
+      }
+      catch (e) {
+        console.log(mm.account)        
+        setAdminState(AdminState.AccessDenied);
+      }
+    }
 
     async function getEncryptedData() {
       if (adminState === AdminState.FetchData && !isLoadingData) {
         setIsLoadingData(true)
 
-        try {         
+        try {
           setEncryptedData([
             {
               address: ethers.constants.AddressZero,
@@ -70,14 +139,15 @@ export default function Home() {
       }
     }
 
+    checkForAdminNFT()
     getEncryptedData()
-  }, [adminState, isLoadingData])
+  }, [mm, provider])
 
   async function onDecryptData(data: EncryptedData) {
-   
+
     setIsLoadingDecryptionFor(data.address)
     try {
-     
+
 
       // call contract to decrypt
 
@@ -138,6 +208,9 @@ export default function Home() {
             >
               Start to decrypt data
             </button>
+
+            <br></br>
+            <button onClick={checkAdminNFT}>TEST Button</button>
           </div>
         )
         break
