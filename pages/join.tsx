@@ -1,18 +1,14 @@
+import { ethers } from "ethers"
 import { useRouter } from "next/router"
-import { ChangeEvent, useRef, useState, useEffect } from "react"
-import { AiFillDatabase, AiFillStar, AiOutlineStar } from "react-icons/ai"
-import { BiUpload } from "react-icons/bi"
+import { useState } from "react"
+import { AiFillDatabase, AiFillStar } from "react-icons/ai"
 import { IoIosCheckmark } from "react-icons/io"
-
+import { abi } from "../abis/currentABI"
 import PageLayout from "../components/layouts/PageLayout"
 import Spinner from "../components/Spinner"
-import useIsMounted from "../hooks/useIsMounted"
-
-import { ethers } from "ethers"
-
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
-import { abi } from "../abis/currentABI"
+import useIsMounted from "../hooks/useIsMounted"
 
 enum JoinState {
   Start = "start",
@@ -24,21 +20,21 @@ enum JoinState {
   MintFailure = "mint-failure",
 }
 
-let cid = "";
+let cid = ""
 
 export default function Join() {
-  const mm = useMMContext().mmContext;
-  const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider;
+  const mm = useMMContext().mmContext
+  const provider = useEthersContext()
+    .ethersContext as ethers.providers.Web3Provider
   const router = useRouter()
   const isMounted = useIsMounted()
 
   const [joinState, setJoinState] = useState<JoinState>(JoinState.Start)
-  const [csvFile, setCsvFile] = useState<File>();
-
+  const [csvFile, setCsvFile] = useState<File>()
 
   // loads file client side so server can see it
   const uploadToClient = async (event: any) => {
-    setCsvFile(event.target.files[0]);
+    setCsvFile(event.target.files[0])
   }
 
   const uploadToServer = async (event: any) => {
@@ -50,51 +46,47 @@ export default function Join() {
 
       await fetch("/api/saveFile", { method: "POST", body })
 
-      const new_cid = await fetch("/api/ipfs", { method: "POST", body })
-        .then((res) => { return res.json() })
+      const new_cid = await fetch("/api/ipfs", { method: "POST", body }).then(
+        (res) => {
+          return res.json()
+        }
+      )
 
-      cid = new_cid;
+      cid = new_cid
 
       setJoinState(JoinState.UploadSuccess)
-    }
-    catch (e: any) {
+    } catch (e: any) {
       console.error(`An error occured during uploading the file: ${e.message}`)
       setJoinState(JoinState.UploadFailure)
     }
-
   }
 
-
-
   async function onMintToken() {
-    // FOR TESTING    
+    // FOR TESTING
     if (provider == undefined) {
-      console.log('no provider')
+      console.log("no provider")
+      return
+    } else if (cid == undefined || cid == "") {
+      console.log("invalid cid")
       return
     }
-    else if (cid == undefined || cid == '') {
-      console.log('invalid cid')
-      return
-    }
-
 
     try {
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
+      await provider.send("eth_requestAccounts", [])
+      const signer = provider.getSigner()
 
       const SpendDAO = new ethers.Contract(
         process.env.NEXT_PUBLIC_CONTRACT_ADDRESS_ETH!,
         abi as ethers.ContractInterface,
         signer
-      );
+      )
 
       const tx = await SpendDAO.safeMint(mm.account!, cid)
       // await tx.wait(); // wait for the transaction to be mined
       setJoinState(JoinState.MintSuccess)
-    }
-    catch (e) {
-      console.log(e);
-      setJoinState(JoinState.MintFailure);
+    } catch (e) {
+      console.log(e)
+      setJoinState(JoinState.MintFailure)
     }
 
     // await SpendDAO.balanceOf(account!)
@@ -104,8 +96,6 @@ export default function Join() {
     // await provider.getBalance(account!)
     //   .then(ethers.utils.formatEther)
     //   .then(console.log)
-
-
   }
 
   function onViewDashboard() {
@@ -161,7 +151,6 @@ export default function Join() {
           //     <BiUpload />
           //   </div>
 
-
           <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl bg-white">
             <form onSubmit={uploadToServer}>
               <input id="images" type="file" onChange={uploadToClient} />
@@ -172,7 +161,6 @@ export default function Join() {
             {/* TEST BUTTON
             <br></br>
             <button onClick={onMintToken}>Mint Token</button> */}
-
           </div>
           // <div className="mx-auto w-1/2 mt-24 py-24 px-8 py-2 border-2 border-dashed border-gray-500 rounded-xl">
           //   <button
@@ -189,14 +177,13 @@ export default function Join() {
           //     </p>
           //   </button>
 
-
           //   <input
           //     ref={(ref) => (fileRef.current = ref)}
           //     type="file"
           //     accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           //     className="hidden"
           //     // className="flex justify-center mt-10 w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-600 hover:file:bg-violet-100"
-          //     onChange={uploadToClient} 
+          //     onChange={uploadToClient}
           //   />
           // </div>
         )
@@ -299,8 +286,7 @@ export default function Join() {
     <PageLayout containerClassName="bg-gray-50">
       <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
-
-          {!isMounted ? null : mm.status != 'connected' ? (
+          {!isMounted ? null : mm.status != "connected" ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
             <>
