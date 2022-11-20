@@ -3,15 +3,14 @@ import { FC, useState } from "react"
 
 import useIsMounted from "../hooks/useIsMounted"
 
-import { useMetaMask } from "metamask-react"
+import { useMMContext } from "../context/MMProvider"
 
 type HeaderProps = {
   type?: string
 }
 
 const Header: FC<HeaderProps> = ({}) => {
-  const { status, connect, account, chainId, ethereum } = useMetaMask();
-
+  const mm = useMMContext().mmContext;
   const router = useRouter()
   const isMounted = useIsMounted()
 
@@ -27,17 +26,17 @@ const Header: FC<HeaderProps> = ({}) => {
           </button>
 
           <div className="flex items-center space-x-6 z-50">
-            {!isMounted ? null : status == 'connected' ? (
+            {!isMounted ? null : mm.status == 'connected' ? (
               <button
                 className="text-bold text-md rounded-xl text-violet-600 border-2 border-gray-100 py-2 px-6 max-w-xs truncate"
                 // onClick={() => disconnect()}
               >
-                {account}
+                {mm.account}
               </button>
             ) : (
               <button
                 className="text-bold text-md rounded-xl text-violet-600 border-2 border-gray-100 py-2 px-6"
-                onClick={connect}
+                onClick={mm.connect}
               >
                 Sign in with wallet
               </button>

@@ -9,7 +9,10 @@ import Spinner from "../components/Spinner"
 import useIsMounted from "../hooks/useIsMounted"
 
 import { ethers } from "ethers"
-import { useMetaMask } from "metamask-react"
+
+import { useEthersContext } from "../context/EthersProvider"
+import { useMMContext } from "../context/MMProvider"
+import { abi } from "../abis/currentABI"
 
 enum JoinState {
   Start = "start",
@@ -24,19 +27,8 @@ enum JoinState {
 let cid = "";
 
 export default function Join() {
-  const { status, connect, account, chainId, ethereum } = useMetaMask();
-
-  const [provider, setProvider] = useState<any>(null);
-  const abi = require('../abis/SpendDAO.json').abi;
-  useEffect(() => {
-    try {
-      setProvider(new ethers.providers.Web3Provider((window as any).ethereum, "any"));
-    } catch (e) {
-      console.log(e);
-    }
-  }, [])
-
-
+  const mm = useMMContext().mmContext;
+  const provider = useEthersContext().ethersContext as ethers.providers.Web3Provider;
   const router = useRouter()
   const isMounted = useIsMounted()
 
@@ -64,7 +56,6 @@ export default function Join() {
       cid = new_cid;
 
       setJoinState(JoinState.UploadSuccess)
-
     }
     catch (e: any) {
       console.error(`An error occured during uploading the file: ${e.message}`)
@@ -76,7 +67,6 @@ export default function Join() {
 
 
   async function onMintToken() {
-
     // FOR TESTING    
     if (provider == undefined) {
       console.log('no provider')
@@ -98,7 +88,7 @@ export default function Join() {
         signer
       );
 
-      const tx = await SpendDAO.safeMint(account!, cid)
+      const tx = await SpendDAO.safeMint(mm.account!, cid)
       // await tx.wait(); // wait for the transaction to be mined
       setJoinState(JoinState.MintSuccess)
     }
@@ -280,7 +270,7 @@ export default function Join() {
       <div className="w-full min-h-screen bg-cover ">
         <div className="text-center mt-32">
 
-          {!isMounted ? null : status != 'connected' ? (
+          {!isMounted ? null : mm.status != 'connected' ? (
             <h1 className="font-bold text-4xl leading-tight">Please sign in</h1>
           ) : (
             <>
