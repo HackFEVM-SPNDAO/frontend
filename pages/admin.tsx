@@ -11,7 +11,7 @@ import useIsMounted from "../hooks/useIsMounted"
 
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
-import { abi } from "../abis/currentABI"
+import { ADMIN_ABI } from "../abis/currentABI"
 
 enum AdminState {
   NoData = "noData",

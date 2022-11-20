@@ -3,7 +3,7 @@ import { ethers } from "ethers"
 
 import { useMMContext } from "../context/MMProvider"
 import { useEthersContext } from "../context/EthersProvider"
-import { abi } from "../abis/currentABI"
+import { SBT_ABI } from "../abis/currentABI"
 
 
 
@@ -18,7 +18,7 @@ export default function UserDashData() {
     useEffect(() => {
         const getNFTs = async () => {
             const signer = provider.getSigner();
-            const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SBT_ADDR!, abi, signer);
+            const contract = new ethers.Contract(process.env.NEXT_PUBLIC_SBT_ADDR!, SBT_ABI, signer);
 
             const bal = await contract.balanceOf(mm.account!);
 

@@ -10,7 +10,7 @@ import Spinner from "../components/Spinner"
 
 import { useEthersContext } from "../context/EthersProvider"
 import { useMMContext } from "../context/MMProvider"
-import { abi } from "../abis/currentABI"
+import { SBT_ABI } from "../abis/currentABI"
 
 enum JoinState {
   Start = "start",
@@ -79,7 +79,7 @@ export default function Join() {
 
       const SpendDAO = new ethers.Contract(
         process.env.NEXT_PUBLIC_SBT_ADDR!,
-        abi as ethers.ContractInterface,
+        SBT_ABI as ethers.ContractInterface,
         signer
       )
 
