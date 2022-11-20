@@ -34,6 +34,8 @@ export default function Join() {
   // tracks state of file to be uploaded
   const [csvFile, setCsvFile] = useState<File>();
 
+  // const [cid, setCid] = useState<string>();
+
 
   // loads file client side so server can see it
   const uploadToClient = async (event: any) => {
@@ -49,7 +51,11 @@ export default function Join() {
       const body = new FormData()
       body.append("file", csvFile!)
 
-      await fetch("/api/ipfs", { method: "POST", body })
+      await fetch("/api/saveFile", { method: "POST", body })      
+
+      const cid = await fetch("/api/ipfs", { method: "POST", body })
+      .then((res) => {return res.json()})
+      
 
       setJoinState(JoinState.UploadSuccess)
     }
