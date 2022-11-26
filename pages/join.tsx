@@ -50,19 +50,24 @@ export default function Join() {
     setJoinState(JoinState.UploadingCsv)
 
     try {
+      const file_id = crypto.randomBytes(20).toString('hex');
+
       const body = new FormData()
       body.append("file", file!)
-      body.append('id', crypto.randomBytes(20).toString('hex'));
+      body.append('id', file_id);
 
-      await fetch("/api/saveFile", { method: "POST", body })
-
-      const new_cid = await fetch("/api/ipfs", { method: "POST", body }).then(
-        (res) => {
-          return res.json()
-        }
-      )
-
-      cid = new_cid
+      const save_res = await fetch("/api/saveFile", { method: "POST", body })
+      console.log(save_res)
+      
+      await fetch("/api/ipfs", { 
+        method: "POST",  
+        body: JSON.stringify({path: `./public/uploads/${file_id}.csv`}),      
+      })
+      .then((res) => res.json())
+      .then((new_cid) => {
+        cid = new_cid;
+      })
+                        
 
       setJoinState(JoinState.UploadSuccess)
     } catch (e: any) {

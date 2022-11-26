@@ -17,19 +17,24 @@ const saveFile = async (file: File, id: string) => {
     fs.writeFileSync(`./public/uploads/${id}.csv`, data);
     // @ts-ignore 
     await fs.unlinkSync(file.path)
-    return csvPath;    
+    return csvPath;
 };
 
 
 // uploads to ipfs
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const form = new IncomingForm();
-    
-    await form.parse(req, (err: any, fields: any, files: any) => {
-        saveFile(files.file, fields.id)
-        .then(() => {
-            return res.status(200).json({success: 'true'});;
-        })      
-    })    
+
+    return new Promise((resolve, reject) => {
+        form.parse(req, (err: any, fields: any, files: any) => {
+            saveFile(files.file, fields.id)
+                .then(() => {
+                    return res.status(200).json({ success: 'true' });;
+                })
+                .catch((err: any) => {                    
+                    return res.status(400).json({ success: 'false' });;
+                })
+        });
+    });
 };
-    
+
