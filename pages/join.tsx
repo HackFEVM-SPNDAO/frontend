@@ -56,8 +56,7 @@ export default function Join() {
       body.append("file", file!)
       body.append('id', file_id);
 
-      const save_res = await fetch("/api/saveFile", { method: "POST", body })
-      console.log(save_res)
+      await fetch("/api/saveFile", { method: "POST", body })      
       
       await fetch("/api/ipfs", { 
         method: "POST",  
@@ -67,7 +66,13 @@ export default function Join() {
       .then((new_cid) => {
         cid = new_cid;
       })
-                        
+
+      // cleanup server 
+      await fetch("/api/cleanup", {
+        method: "POST",
+        body: JSON.stringify({path: `./public/uploads/${file_id}.csv`}),
+      })
+
 
       setJoinState(JoinState.UploadSuccess)
     } catch (e: any) {
