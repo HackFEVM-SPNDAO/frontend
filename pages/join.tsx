@@ -52,26 +52,51 @@ export default function Join() {
     try {
       const file_id = crypto.randomBytes(20).toString('hex');
 
+      const path = JSON.stringify({ path: `./public/uploads/${file_id}.csv` });
+
+
       const body = new FormData()
       body.append("file", file!)
       body.append('id', file_id);
 
-      await fetch("/api/saveFile", { method: "POST", body })      
-      
-      await fetch("/api/ipfs", { 
-        method: "POST",  
-        body: JSON.stringify({path: `./public/uploads/${file_id}.csv`}),      
-      })
-      .then((res) => res.json())
-      .then((new_cid) => {
-        cid = new_cid;
-      })
 
-      // cleanup server 
-      await fetch("/api/cleanup", {
-        method: "POST",
-        body: JSON.stringify({path: `./public/uploads/${file_id}.csv`}),
+      fetch("/api/saveFile", { method: "POST", body })
+      .then(() => {
+        fetch("/api/ipfs", { method: "POST", body: path })
+        .then((res) => res.json())
+        .then( (new_cid) => { cid = new_cid;})        
+        .then( () => {
+          console.log(cid);
+        })
+        .then( () => {
+          fetch("/api/cleanup", { method: "POST", body: path })        
+        });
       })
+      
+      
+      
+      
+
+
+      // fetch("/api/ipfs", {
+      //   method: "POST",
+      //   body: JSON.stringify({ path: `./public/uploads/${file_id}.csv` }),
+      // })
+      // .then((res) => res.json())
+      // .then((new_cid) => {
+      //   cid = new_cid;
+      // })
+      // .then( () => {
+      // // cleanup server 
+      //   fetch("/api/cleanup", {
+      //     method: "POST",
+      //     body: JSON.stringify({ path: `./public/uploads/${file_id}.csv` }),
+      //   })
+      // })
+
+      
+
+      
 
 
       setJoinState(JoinState.UploadSuccess)
