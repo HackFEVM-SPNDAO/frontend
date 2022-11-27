@@ -103,7 +103,7 @@ export default function UserDashData() {
     )
   } else {
     return (
-      <div className="flex flex-col items-center mx-auto mt-24 px-8 py-3">
+      <div className="flex flex-col items-center mx-auto px-8">
             {list.map((item, index) => {
               const nft = JSON.parse(item) as Nft
             return (

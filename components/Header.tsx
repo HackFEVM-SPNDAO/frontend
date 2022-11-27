@@ -29,7 +29,9 @@ const Header: FC<HeaderProps> = ({}) => {
             {!isMounted ? null : mm.status == "connected" ? (
               <button
                 className="text-bold text-md rounded-xl text-violet-600 border-2 border-gray-100 py-2 px-6 max-w-xs truncate"
-                // onClick={() => disconnect()}
+                onClick={() => {
+                  router.push("/dashboard")
+                }}
               >
                 {mm.account}
               </button>
