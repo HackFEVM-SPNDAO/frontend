@@ -66,8 +66,10 @@ export default function UserDashData() {
                   setList((list) => [...list, JSON.stringify(data)])
                 })
             })
+         
           })
       }
+      console.log(list)
       setLoaded(true)
     }
 
@@ -101,18 +103,18 @@ export default function UserDashData() {
     )
   } else {
     return (
-      <div className="flex flex-col items-center mx-auto mt-24 px-8">
-        {list?.[0] &&
-          (JSON.parse(list?.[0]) as Nft)?.items?.map((nft, index: number) => {
+      <div className="flex flex-col items-center mx-auto mt-24 px-8 py-3">
+            {list.map((item, index) => {
+              const nft = JSON.parse(item) as Nft
             return (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-lg bg-white py-4 px-8 shadow-md"
+                className="flex items-center justify-between rounded-lg bg-white py-5 px-8 shadow-md"
               >
                 <div className="flex flex-col items-start">
                   <p className="text-bold text-gray-500">Token Name</p>
                   <p className="truncate max-w-xs text-bold text-gray-500">
-                    {nft?.name}
+                    {nft?.items[0].name.substring(0, 8)}
                   </p>
                 </div>
                 <div className="ml-8 flex flex-col items-start">
@@ -129,11 +131,12 @@ export default function UserDashData() {
                 <button
                   className="ml-8 bg-violet-600 text-white text-bold text-md rounded-md px-6 py-2"
                   disabled={!!isBurning}
-                  onClick={() => burnToken(nft?.id)}
+                  onClick={() => burnToken(nft?.items[0].id)}
                 >
                   {!!isBurning ? <Spinner /> : "Burn"}
                 </button>
               </div>
+              
             )
           })}
       </div>

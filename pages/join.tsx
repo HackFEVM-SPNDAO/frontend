@@ -54,7 +54,6 @@ export default function Join() {
 
       const path = JSON.stringify({ path: `./public/uploads/${file_id}.csv` });
 
-
       const body = new FormData()
       body.append("file", file!)
       body.append('id', file_id);
@@ -72,33 +71,7 @@ export default function Join() {
           fetch("/api/cleanup", { method: "POST", body: path })        
         });
       })
-      
-      
-      
-      
-
-
-      // fetch("/api/ipfs", {
-      //   method: "POST",
-      //   body: JSON.stringify({ path: `./public/uploads/${file_id}.csv` }),
-      // })
-      // .then((res) => res.json())
-      // .then((new_cid) => {
-      //   cid = new_cid;
-      // })
-      // .then( () => {
-      // // cleanup server 
-      //   fetch("/api/cleanup", {
-      //     method: "POST",
-      //     body: JSON.stringify({ path: `./public/uploads/${file_id}.csv` }),
-      //   })
-      // })
-
-      
-
-      
-
-
+    
       setJoinState(JoinState.UploadSuccess)
     } catch (e: any) {
       console.error(`An error occured during uploading the file: ${e.message}`)
