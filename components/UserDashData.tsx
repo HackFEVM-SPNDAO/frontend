@@ -68,8 +68,7 @@ export default function UserDashData() {
             })
          
           })
-      }
-      console.log(list)
+      }      
       setLoaded(true)
     }
 
