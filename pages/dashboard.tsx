@@ -9,7 +9,8 @@ export default function Home() {
 
   return (
     <>
-      {mm.status != "connected" ? (
+      
+      {mm == undefined || mm.status != "connected" ? (
         <PageLayout>
           <div className="w-full min-h-screen bg-cover">
             <div className="text-center mt-20">

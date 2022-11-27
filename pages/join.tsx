@@ -64,9 +64,9 @@ export default function Join() {
         fetch("/api/ipfs", { method: "POST", body: path })
         .then((res) => res.json())
         .then( (new_cid) => { cid = new_cid;})        
-        .then( () => {
-          console.log(cid);
-        })
+        // .then( () => {
+        //   console.log(cid);
+        // })
         .then( () => {
           fetch("/api/cleanup", { method: "POST", body: path })        
         });

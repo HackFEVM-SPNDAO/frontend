@@ -43,7 +43,6 @@ export default function AdminDashData() {
             let bal = await contract.totalSupply();
             bal = bal.toNumber();
             
-            console.log(bal);
             for (let i = 1; i < bal; i++) {
                 await contract.cidList(i)
                     .then((cid: string) => {                        
